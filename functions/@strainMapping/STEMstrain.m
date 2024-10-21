@@ -166,6 +166,8 @@ for n=1:n1
         D = [NaN NaN;NaN NaN];
         Eerr = [NaN NaN;NaN NaN];
     end
+    D = R\D;
+    Eerr = R\Eerr;
     E = 1/2*(D+D');
     O = 1/2*(D-D');
     eps_xx(n,1) = E(1,1);

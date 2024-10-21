@@ -158,7 +158,7 @@ elseif isfield(file,'output') && ~isa(file.output,'outputStatSTEM')
     % This means a model has been fitted before, convert structure
     names = fieldnames(file.output);
     if any(strcmp(names,'BetaX')) % Convert coordinates to newer version
-        file.output.coordinates = [file.output.BetaX,file.(fNames{ind}).BetaY];
+        file.output.coordinates = [file.output.BetaX,file.output.BetaY];
         file.output = rmfield(file.output,{'BetaX','BetaY'});
     end
     out = file.output;

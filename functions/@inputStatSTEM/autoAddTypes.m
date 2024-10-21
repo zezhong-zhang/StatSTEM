@@ -24,7 +24,9 @@ output = outputStatSTEM(obj.coordinates,ones(Ncol,1),ones(Ncol,1),0,obj.dx);
 output.types = obj.types;
 
 % Find a- and b-direction
-strainmapping = getCenCoor(output,obj);
+strainmapping = usrCoorGUI(output,obj);
+% strainmapping = getCenCoor(output,input);
+strainmapping.findDirA = 1;
 strainmapping = findLatDir(strainmapping);
 
 coor = strainmapping.coordinates(:,1:2);

@@ -25,7 +25,9 @@ output.types = obj.types;
 
 % Find a- and b-direction
 strainmapping = getCenCoor(output,obj);
+strainmapping.findDirA = 1;
 strainmapping = findLatDir(strainmapping);
+
 
 coor = strainmapping.coordinates(:,1:2);
 refCoor = strainmapping.refCoor;
