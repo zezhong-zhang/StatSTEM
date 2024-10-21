@@ -83,5 +83,5 @@ else
 end
 
 % Create outputStatSTEMstructure
-output = outputStatSTEM(input.coordinates,rho,eta,zeta,input.dx);
+output = outputStatSTEM(input.coordinates,rho,eta,zeta,input.dx,input.peakShape);
 output.types = input.types;

@@ -1,5 +1,5 @@
 function output = fitGauss_samerho(input, rho, offset, maxwait)
-% fitGauss_diffrho - program to fit gaussian peaks having the same width to
+% fitGauss_samerho - program to fit gaussian peaks having the same width to
 %                    a STEM image
 %
 %   In this method, each individual peak is cut out of the original image.

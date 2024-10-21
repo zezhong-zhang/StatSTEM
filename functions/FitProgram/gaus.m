@@ -18,4 +18,4 @@ function q = gaus(R2,rho)
 %--------------------------------------------------------------------------
 
 q = exp(-R2/(2*rho^2));
-q(R2 > (3*rho)^2) = 0; %then q contains 99% of the original inetnsity
+q(R2 > (3*rho)^2) = 0; %then q contains 99.7% of the original inetnsity

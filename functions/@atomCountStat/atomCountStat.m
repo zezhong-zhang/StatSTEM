@@ -17,6 +17,8 @@ classdef atomCountStat < atomCount
         estimatedDistributions = []; % The results of the Gaussian mixture model fitting for different components
         mLogLik = []; % The maximum log likelihood for the fitted results for different components
         selMin = []; % The selected minimum in the ICL
+        GMMType = []; % Type of width in GMM
+        dose = []; % for normalised images: incident dose (e- per Å^2)
     end
     
     properties (Dependent)
@@ -73,10 +75,17 @@ classdef atomCountStat < atomCount
         end
         
         function val = get.estimatedWidth(obj)
+            if isempty(obj.GMMType)
+                obj.GMMType = 1;
+            end
             if isempty(obj.selMin)
                 val = [];
             else
-            	val = sqrt(obj.estimatedDistributions{1,obj.selMin}.Sigma);
+                if obj.GMMType == 1
+                	val = sqrt(obj.estimatedDistributions{1,obj.selMin}.Sigma)*ones(length(obj.estimatedLocations),1);
+                else
+                    val = sqrt(obj.estimatedDistributions{1,obj.selMin}.Sigma + obj.estimatedLocations/obj.dose);
+                end
             end
         end
         
@@ -122,7 +131,7 @@ classdef atomCountStat < atomCount
             Pcomp = obj.estimatedProportions;
             for i=1:N
                 for j = 1:obj.selMin
-                    probability(j) = Pcomp(j)*normaldistribution(vol(i),Loc(j),Width);
+                    probability(j) = Pcomp(j)*normaldistribution(vol(i),Loc(j),Width(j));
                 end
                 val(i) = find(probability == max(probability))+obj.offset;
             end
@@ -131,7 +140,7 @@ classdef atomCountStat < atomCount
         function val = get.ICL(obj)
             % ICL - the Integrated Classification Likelihood Criterion
             %
-            % See also: Biernacki et al., Technical Report  3521, INRIA, Rh�nes-Alpes, 1998.
+            % See also: Biernacki et al., Technical Report  3521, INRIA, Rhônes-Alpes, 1998.
             
             val = obj.ICLp;
             if length(val)==length(obj.estimatedDistributions)
@@ -151,22 +160,19 @@ classdef atomCountStat < atomCount
 
                 % Gather inputs
                 mu = obj.estimatedDistributions{1,p}.mu;
-                var_eq = sqrt(obj.estimatedDistributions{1,p}.Sigma);
+                var_eq = obj.estimatedDistributions{1,p}.Sigma;
                 P = obj.estimatedDistributions{1,p}.PComponents;
                 mlog = obj.mLogLik(1,p);
 
                 pP = zeros(N,p);
                 for k = 1:p
-                    pP(:,k) = normaldistribution(obj.volumes,mu(k),var_eq)*P(k);
+                    pP(:,k) = mvnpdf(obj.volumes,mu(k),var_eq)*P(k);
                 end
                 E_w = pP./repmat(sum(pP,2),1,p);
                 Ew = E_w(:);
                 index=find(ne(log(Ew),-Inf));
-                som=0;
-                for j=1:length(index)
-                    som = som + sum(sum(Ew(index(j)).*log(Ew(index(j)))));
-                end
-                crit(1,p) = 2*mlog - 2*som + p*2*log(N);
+                EN = -sum(sum(sum(Ew(index).*log(Ew(index)))));
+                crit(1,p) = 2*mlog + 2*EN + p*2*log(N);
             end
             val = crit(1,1:n_c);
         end
@@ -290,7 +296,7 @@ classdef atomCountStat < atomCount
             Pcomp = obj.estimatedProportions;
             x = obj.x;
             for i = 1:obj.selMin
-               val(i,:) = normaldistribution(x,Loc(i),Width)*Pcomp(i)*obj.N*(max(obj.volumes)-min(obj.volumes))/bins;
+               val(i,:) = normaldistribution(x,Loc(i),Width(i))*Pcomp(i)*obj.N*(max(obj.volumes)-min(obj.volumes))/bins;
             end
         end
         
@@ -306,7 +312,7 @@ classdef atomCountStat < atomCount
             Width = obj.estimatedWidth;
             Pcomp = obj.estimatedProportions;
             for i = 1:obj.selMin
-               val(i,:) = normaldistribution(x,Loc(i),Width)*Pcomp(i);
+               val(i,:) = normaldistribution(x,Loc(i),Width(i))*Pcomp(i);
             end
             val = sum(val);
         end

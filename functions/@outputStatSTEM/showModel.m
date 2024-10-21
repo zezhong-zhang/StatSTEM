@@ -29,4 +29,3 @@ axis([x_axis(1),x_axis(end),y_axis(1),y_axis(end)]) % Set limits
 if nargin>1
     caxis([min(min(input.obs)),max(max(input.obs))])
 end
-    
